@@ -15,6 +15,7 @@ import com.example.model.LoginUser;
 import com.example.model.MessageDTO;
 import com.example.model.MessageFileDTO;
 import com.example.model.Messages;
+import com.example.model.UserDTO;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -155,7 +156,11 @@ public class MyController {
 
 	@POST
 	@Path("login")
-	public String postLogin() {
-		return "redirect:list";
+	public String postLogin(@BeanParam UserDTO userDTO) {
+		if (userDTO.getName().equals("kcg") && userDTO.getPassword().equals("foo")) {
+			return "redirect:list";
+		}
+		errorBean.setMessage("ユーザ名またはパスワードが異なります");
+		return "redirect:login";
 	}
 }

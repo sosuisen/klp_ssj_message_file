@@ -14,6 +14,9 @@
 			type="password" name="password">
 		<button>ログイン</button>
 	</form>
+	<p style="color: red">
+		${ errorBean.message }
+	</p>
 	<p>
 		<a href="${mvc.basePath}/">ホームへ戻る</a>
 	</p>
