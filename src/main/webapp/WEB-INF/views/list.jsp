@@ -32,7 +32,7 @@
 	<h1>メッセージ一覧</h1>
 	<c:forEach var="mes" items="${messages}">
 		<div>${mes.name}:${mes.message}
-		<c:if test = "${ mes.fileName != null }"><br>[<a href="../${ uploaderDirName }/${ mes.fileName }">${ mes.fileName }</a>]</c:if></div>
+		<c:if test = "${ mes.getClass().name == 'com.example.model.MessageFileDTO' && mes.fileName != null }"><br>[<a href="../${ uploaderDirName }/${ mes.fileName }">${ mes.fileName }</a>]</c:if></div>
 	</c:forEach>
 	<p>
 		<a href="${mvc.basePath}/login">ログアウト</a>
