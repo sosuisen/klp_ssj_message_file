@@ -83,7 +83,7 @@ public class MyController {
 	@GET
 	@Path("list")
 	public String getMessage() {
-		if(loginUser.getName().equals("")) {
+		if(loginUser.getName() == null) {
 			return "redirect:login";
 		}
 		
@@ -155,7 +155,7 @@ public class MyController {
 	@GET
 	@Path("login")
 	public String getLogin() {
-		loginUser.setName("");
+		loginUser.setName(null);
 		return "login.jsp";
 	}
 
