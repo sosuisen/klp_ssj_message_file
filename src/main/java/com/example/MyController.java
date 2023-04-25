@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import com.example.model.ErrorBean;
@@ -15,6 +14,7 @@ import com.example.model.MessageDTO;
 import com.example.model.MessageFileDTO;
 import com.example.model.Messages;
 import com.example.model.UserDTO;
+import com.example.model.Users;
 
 import org.apache.commons.io.IOUtils;
 
@@ -52,23 +52,20 @@ public class MyController {
 	private final String uploaderRoot = "C:\\pleiades-ssj2023";
 	private final String uploaderDirName = "uploaded";
 
-	private final Map users = Map.of(
-			"user1", "pass1",
-			"user2", "pass2",
-			"user3", "pass3");
-	
 	private final Messages messages;
 
 	private final LoginUser loginUser;
 
 	private final ErrorBean errorBean;
+	
+	private final Users users;
 
-	// @Injectはコンストラクタインジェクションを用いるのが定石です。
 	@Inject
-	public MyController(Messages messages, LoginUser loginUser, ErrorBean errorBean) {
+	public MyController(Messages messages, LoginUser loginUser, ErrorBean errorBean, Users users) {
 		this.messages = messages;
 		this.loginUser = loginUser;
 		this.errorBean = errorBean;
+		this.users = users;
 	}
 
 	@Inject
@@ -165,7 +162,7 @@ public class MyController {
 	public String postLogin(@BeanParam UserDTO userDTO) {
 		var name = userDTO.getName();
 		var password = userDTO.getPassword();
-		if(password.equals(users.get(name))){
+		if(password.equals(users.getPassword(name))){
 			return "redirect:list";
 		}
 		errorBean.setMessage("ユーザ名またはパスワードが異なります");
