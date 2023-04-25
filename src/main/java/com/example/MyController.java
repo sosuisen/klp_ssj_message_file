@@ -1,7 +1,18 @@
 package com.example;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Optional;
+
+import org.apache.commons.io.IOUtils;
+
 import com.example.model.LoginUser;
 import com.example.model.MessageDTO;
+import com.example.model.MessageFileDTO;
 import com.example.model.Messages;
 
 import jakarta.enterprise.context.RequestScoped;
@@ -9,9 +20,13 @@ import jakarta.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.ws.rs.BeanParam;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.EntityPart;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
 import lombok.NoArgsConstructor;
 
 /**
@@ -30,8 +45,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(force = true)
 @Path("/")
 public class MyController {
-	// 保存先のフォルダを作っておくこと。
-	private final String saveDirectory = "c:\\pleiades-ssj2023\\uploaded\\";
+	// uploaderRootで指定したディレクトリ直下に uploaded という名前のフォルダを作ること
+	private final String uploaderRoot = "C:\\pleiades-ssj2023";
+	private final String uploaderDirName = "uploaded";
 
 	private final Messages messages;
 
@@ -63,8 +79,11 @@ public class MyController {
 		// 今後は、ログイン処理を追加し、その時にセットする必要があります。
 		this.loginUser.setName("鴨川三条");
 
+		models.put("uploaderDirName", uploaderDirName);
+		
 		return "list.jsp";
 	}
+
 
 	@POST
 	@Path("list")
@@ -74,12 +93,11 @@ public class MyController {
 		return "redirect:list";
 	}
 
-	/*
 	@POST
-	@Path("list")
+	@Path("fileupload")
 	@Consumes("multipart/form-data")
-	public String postFormData(List<EntityPart> parts) {
-		var mes = new MessageDTO();
+	public String postFileUpload(List<EntityPart> parts) {
+		var mes = new MessageFileDTO();
 		for (EntityPart part : parts) {
 			String name = part.getName();
 			Optional<String> fileName = part.getFileName();
@@ -100,8 +118,9 @@ public class MyController {
 				}
 				case "uploadfile" -> {
 					var uploadedFileName = new String(fileName.get().getBytes("iso-8859-1"),"utf-8");
-					var out = new FileOutputStream(saveDirectory + uploadedFileName);
+					var out = new FileOutputStream(uploaderRoot + File.separator + uploaderDirName + File.separator + uploadedFileName);
 					IOUtils.copy(is, out);
+					mes.setFileName(uploadedFileName);
 				}
 				}
 			} catch (IOException e) {
@@ -116,7 +135,7 @@ public class MyController {
 		
 		return "redirect:list";
 	}
-	 */
+
 	@GET
 	@Path("clear")
 	public String clearMessage() {
