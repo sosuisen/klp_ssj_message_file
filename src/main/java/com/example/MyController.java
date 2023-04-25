@@ -6,9 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-
-import org.apache.commons.io.IOUtils;
 
 import com.example.model.ErrorBean;
 import com.example.model.LoginUser;
@@ -16,6 +15,8 @@ import com.example.model.MessageDTO;
 import com.example.model.MessageFileDTO;
 import com.example.model.Messages;
 import com.example.model.UserDTO;
+
+import org.apache.commons.io.IOUtils;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -51,6 +52,11 @@ public class MyController {
 	private final String uploaderRoot = "C:\\pleiades-ssj2023";
 	private final String uploaderDirName = "uploaded";
 
+	private final Map users = Map.of(
+			"user1", "pass1",
+			"user2", "pass2",
+			"user3", "pass3");
+	
 	private final Messages messages;
 
 	private final LoginUser loginUser;
@@ -157,7 +163,9 @@ public class MyController {
 	@POST
 	@Path("login")
 	public String postLogin(@BeanParam UserDTO userDTO) {
-		if (userDTO.getName().equals("kcg") && userDTO.getPassword().equals("foo")) {
+		var name = userDTO.getName();
+		var password = userDTO.getPassword();
+		if(password.equals(users.get(name))){
 			return "redirect:list";
 		}
 		errorBean.setMessage("ユーザ名またはパスワードが異なります");
