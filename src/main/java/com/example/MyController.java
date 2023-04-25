@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 
+import com.example.model.ErrorBean;
 import com.example.model.LoginUser;
 import com.example.model.MessageDTO;
 import com.example.model.MessageFileDTO;
@@ -53,11 +54,14 @@ public class MyController {
 
 	private final LoginUser loginUser;
 
+	private final ErrorBean errorBean;
+
 	// @Injectはコンストラクタインジェクションを用いるのが定石です。
 	@Inject
-	public MyController(Messages messages, LoginUser loginUser) {
+	public MyController(Messages messages, LoginUser loginUser, ErrorBean errorBean) {
 		this.messages = messages;
 		this.loginUser = loginUser;
+		this.errorBean = errorBean;
 	}
 
 	@Inject
@@ -80,10 +84,9 @@ public class MyController {
 		this.loginUser.setName("鴨川三条");
 
 		models.put("uploaderDirName", uploaderDirName);
-		
+
 		return "list.jsp";
 	}
-
 
 	@POST
 	@Path("list")
@@ -117,8 +120,9 @@ public class MyController {
 					mes.setMessage(data);
 				}
 				case "uploadfile" -> {
-					var uploadedFileName = new String(fileName.get().getBytes("iso-8859-1"),"utf-8");
-					var out = new FileOutputStream(uploaderRoot + File.separator + uploaderDirName + File.separator + uploadedFileName);
+					var uploadedFileName = new String(fileName.get().getBytes("iso-8859-1"), "utf-8");
+					var out = new FileOutputStream(
+							uploaderRoot + File.separator + uploaderDirName + File.separator + uploadedFileName);
 					IOUtils.copy(is, out);
 					mes.setFileName(uploadedFileName);
 				}
@@ -130,9 +134,9 @@ public class MyController {
 			System.out.println("name: %s, data: %s, fileName: %s, mediaType: %s".formatted(name, data, fileName,
 					mediaType.toString()));
 		}
-		
+
 		messages.add(mes);
-		
+
 		return "redirect:list";
 	}
 
