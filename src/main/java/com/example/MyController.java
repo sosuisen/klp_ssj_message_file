@@ -83,10 +83,10 @@ public class MyController {
 	@GET
 	@Path("list")
 	public String getMessage() {
-		// 今回はここで強制的にユーザ名をセットしておきます。
-		// 今後は、ログイン処理を追加し、その時にセットする必要があります。
-		this.loginUser.setName("鴨川三条");
-
+		if(loginUser.getName().equals("")) {
+			return "redirect:login";
+		}
+		
 		models.put("uploaderDirName", uploaderDirName);
 
 		return "list.jsp";
@@ -95,6 +95,7 @@ public class MyController {
 	@POST
 	@Path("list")
 	public String postMessage(@BeanParam MessageDTO mes) {
+		mes.setName(loginUser.getName());
 		messages.add(mes);
 		// リダイレクトは "redirect:リダイレクト先のパス"
 		return "redirect:list";
@@ -138,7 +139,7 @@ public class MyController {
 			System.out.println("name: %s, data: %s, fileName: %s, mediaType: %s".formatted(name, data, fileName,
 					mediaType.toString()));
 		}
-
+		mes.setName(loginUser.getName());
 		messages.add(mes);
 
 		return "redirect:list";
@@ -154,6 +155,7 @@ public class MyController {
 	@GET
 	@Path("login")
 	public String getLogin() {
+		loginUser.setName("");
 		return "login.jsp";
 	}
 
@@ -163,6 +165,7 @@ public class MyController {
 		var name = userDTO.getName();
 		var password = userDTO.getPassword();
 		if(password.equals(users.getPassword(name))){
+			loginUser.setName(name);
 			return "redirect:list";
 		}
 		errorBean.setMessage("ユーザ名またはパスワードが異なります");
