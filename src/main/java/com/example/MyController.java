@@ -2,11 +2,8 @@ package com.example;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Optional;
 
 import com.example.model.ErrorBean;
 import com.example.model.LoginUserModel;
@@ -22,12 +19,13 @@ import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.NotSupportedException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.EntityPart;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.MultivaluedMap;
 import lombok.NoArgsConstructor;
 
 /**
@@ -98,45 +96,22 @@ public class MyController {
 
 	@POST
 	@Path("fileupload")
-	@Consumes("multipart/form-data")
-	public String postFileUpload(List<EntityPart> parts) {
-		var mes = new MessageFileDTO();
-		for (EntityPart part : parts) {
-			String name = part.getName();
-			Optional<String> fileName = part.getFileName();
-			InputStream is = part.getContent();
-			MultivaluedMap<String, String> partHeaders = part.getHeaders();
-			MediaType mediaType = part.getMediaType();
-
-			String data = "";
-			try {
-				switch (name) {
-				case "name" -> {
-					data = IOUtils.toString(is, StandardCharsets.UTF_8);
-					mes.setName(data);
-				}
-				case "message" -> {
-					data = IOUtils.toString(is, StandardCharsets.UTF_8);
-					mes.setMessage(data);
-				}
-				case "uploadfile" -> {
-					var uploadedFileName = new String(fileName.get().getBytes("iso-8859-1"), "utf-8");
-					var out = new FileOutputStream(
-							uploaderRoot + File.separator + uploaderDirName + File.separator + uploadedFileName);
-					IOUtils.copy(is, out);
-					mes.setFileName(uploadedFileName);
-				}
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			// 参考のため出力
-			System.out.println("name: %s, data: %s, fileName: %s, mediaType: %s".formatted(name, data, fileName,
-					mediaType.toString()));
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	public String postFileUpload(@FormParam("name") String name,
+			@FormParam("message") String message,
+			@FormParam("uploadfile") EntityPart uploadFile) {
+		String fileName = uploadFile.getFileName().orElseThrow(NotSupportedException::new);
+		String utfFileName = new String(fileName.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+		try (
+				InputStream content = uploadFile.getContent();
+				var out = new FileOutputStream(
+						uploaderRoot + File.separator + uploaderDirName + File.separator + utfFileName);
+			) {
+			IOUtils.copy(content, out);
+			messagesModel.add(new MessageFileDTO(name, message, utfFileName));
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-
-		messagesModel.add(mes);
-
 		return "redirect:list";
 	}
 
