@@ -1,20 +1,15 @@
 package com.example;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Optional;
-
-import org.apache.commons.io.IOUtils;
+import java.nio.file.Files;
 
 import com.example.model.ErrorBean;
-import com.example.model.LoginUser;
+import com.example.model.LoginUserModel;
 import com.example.model.MessageDTO;
 import com.example.model.MessageFileDTO;
-import com.example.model.Messages;
+import com.example.model.MessagesModel;
 import com.example.model.UserDTO;
 
 import jakarta.enterprise.context.RequestScoped;
@@ -23,12 +18,13 @@ import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.NotSupportedException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.EntityPart;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.MultivaluedMap;
 import lombok.NoArgsConstructor;
 
 /**
@@ -51,17 +47,17 @@ public class MyController {
 	private final String uploaderRoot = "C:\\pleiades-ssj2023";
 	private final String uploaderDirName = "uploaded";
 
-	private final Messages messages;
+	private final MessagesModel messagesModel;
 
-	private final LoginUser loginUser;
+	private final LoginUserModel loginUserModel;
 
 	private final ErrorBean errorBean;
 
 	// @Injectはコンストラクタインジェクションを用いるのが定石です。
 	@Inject
-	public MyController(Messages messages, LoginUser loginUser, ErrorBean errorBean) {
-		this.messages = messages;
-		this.loginUser = loginUser;
+	public MyController(MessagesModel messagesModel, LoginUserModel loginUserModel, ErrorBean errorBean) {
+		this.messagesModel = messagesModel;
+		this.loginUserModel = loginUserModel;
 		this.errorBean = errorBean;
 	}
 
@@ -82,7 +78,7 @@ public class MyController {
 	public String getMessage() {
 		// 今回はここで強制的にユーザ名をセットしておきます。
 		// 今後は、ログイン処理を追加し、その時にセットする必要があります。
-		this.loginUser.setName("鴨川三条");
+		this.loginUserModel.setName("鴨川三条");
 
 		models.put("uploaderDirName", uploaderDirName);
 
@@ -92,59 +88,33 @@ public class MyController {
 	@POST
 	@Path("list")
 	public String postMessage(@BeanParam MessageDTO mes) {
-		messages.add(mes);
+		messagesModel.add(mes);
 		// リダイレクトは "redirect:リダイレクト先のパス"
 		return "redirect:list";
 	}
 
 	@POST
 	@Path("fileupload")
-	@Consumes("multipart/form-data")
-	public String postFileUpload(List<EntityPart> parts) {
-		var mes = new MessageFileDTO();
-		for (EntityPart part : parts) {
-			String name = part.getName();
-			Optional<String> fileName = part.getFileName();
-			InputStream is = part.getContent();
-			MultivaluedMap<String, String> partHeaders = part.getHeaders();
-			MediaType mediaType = part.getMediaType();
-
-			String data = "";
-			try {
-				switch (name) {
-				case "name" -> {
-					data = IOUtils.toString(is, StandardCharsets.UTF_8);
-					mes.setName(data);
-				}
-				case "message" -> {
-					data = IOUtils.toString(is, StandardCharsets.UTF_8);
-					mes.setMessage(data);
-				}
-				case "uploadfile" -> {
-					var uploadedFileName = new String(fileName.get().getBytes("iso-8859-1"), "utf-8");
-					var out = new FileOutputStream(
-							uploaderRoot + File.separator + uploaderDirName + File.separator + uploadedFileName);
-					IOUtils.copy(is, out);
-					mes.setFileName(uploadedFileName);
-				}
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			// 参考のため出力
-			System.out.println("name: %s, data: %s, fileName: %s, mediaType: %s".formatted(name, data, fileName,
-					mediaType.toString()));
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	public String postFileUpload(@FormParam("name") String name,
+			@FormParam("message") String message,
+			@FormParam("uploadfile") EntityPart uploadFile) {
+		String fileName = uploadFile.getFileName().orElseThrow(NotSupportedException::new);
+		String utfFileName = new String(fileName.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+		try (InputStream content = uploadFile.getContent()) {
+			Files.copy(content, java.nio.file.Path
+					.of(uploaderRoot + File.separator + uploaderDirName + File.separator + utfFileName));
+			messagesModel.add(new MessageFileDTO(name, message, utfFileName));
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-
-		messages.add(mes);
-
 		return "redirect:list";
 	}
 
 	@GET
 	@Path("clear")
 	public String clearMessage() {
-		messages.clear();
+		messagesModel.clear();
 		return "redirect:list";
 	}
 
