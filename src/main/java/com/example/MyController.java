@@ -8,13 +8,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.io.IOUtils;
-
 import com.example.model.ErrorBean;
-import com.example.model.LoginUser;
+import com.example.model.LoginUserModel;
 import com.example.model.MessageDTO;
 import com.example.model.MessageFileDTO;
-import com.example.model.Messages;
+import com.example.model.MessagesModel;
+
+import org.apache.commons.io.IOUtils;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -50,17 +50,17 @@ public class MyController {
 	private final String uploaderRoot = "C:\\pleiades-ssj2023";
 	private final String uploaderDirName = "uploaded";
 
-	private final Messages messages;
+	private final MessagesModel messagesModel;
 
-	private final LoginUser loginUser;
+	private final LoginUserModel loginUserModel;
 
 	private final ErrorBean errorBean;
 
 	// @Injectはコンストラクタインジェクションを用いるのが定石です。
 	@Inject
-	public MyController(Messages messages, LoginUser loginUser, ErrorBean errorBean) {
-		this.messages = messages;
-		this.loginUser = loginUser;
+	public MyController(MessagesModel messagesModel, LoginUserModel loginUserModel, ErrorBean errorBean) {
+		this.messagesModel = messagesModel;
+		this.loginUserModel = loginUserModel;
 		this.errorBean = errorBean;
 	}
 
@@ -81,7 +81,7 @@ public class MyController {
 	public String getMessage() {
 		// 今回はここで強制的にユーザ名をセットしておきます。
 		// 今後は、ログイン処理を追加し、その時にセットする必要があります。
-		this.loginUser.setName("鴨川三条");
+		this.loginUserModel.setName("鴨川三条");
 
 		models.put("uploaderDirName", uploaderDirName);
 
@@ -91,7 +91,7 @@ public class MyController {
 	@POST
 	@Path("list")
 	public String postMessage(@BeanParam MessageDTO mes) {
-		messages.add(mes);
+		messagesModel.add(mes);
 		// リダイレクトは "redirect:リダイレクト先のパス"
 		return "redirect:list";
 	}
@@ -135,7 +135,7 @@ public class MyController {
 					mediaType.toString()));
 		}
 
-		messages.add(mes);
+		messagesModel.add(mes);
 
 		return "redirect:list";
 	}
@@ -143,7 +143,7 @@ public class MyController {
 	@GET
 	@Path("clear")
 	public String clearMessage() {
-		messages.clear();
+		messagesModel.clear();
 		return "redirect:list";
 	}
 
