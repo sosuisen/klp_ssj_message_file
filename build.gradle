@@ -30,9 +30,6 @@ dependencies {
 	implementation 'jakarta.mvc:jakarta.mvc-api:2.1.0'
 	implementation 'org.eclipse.krazo:krazo-core:3.0.1'
 	implementation 'org.eclipse.krazo:krazo-jersey:3.0.1'
-	
-	// InputStream の扱いなどが便利 
-	implementation 'commons-io:commons-io:2.11.0'
 }
 
 payaraMicro {
