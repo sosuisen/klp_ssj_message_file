@@ -1,10 +1,9 @@
 package com.example.model;
 
 import jakarta.ws.rs.FormParam;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Setter @Getter
+@Data
 public class UserDTO {
 	@FormParam("name")
 	private String name;
