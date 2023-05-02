@@ -1,17 +1,15 @@
 package com.example;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 import com.example.model.ErrorBean;
 import com.example.model.LoginUserModel;
 import com.example.model.MessageDTO;
 import com.example.model.MessageFileDTO;
 import com.example.model.MessagesModel;
-
-import org.apache.commons.io.IOUtils;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -102,12 +100,9 @@ public class MyController {
 			@FormParam("uploadfile") EntityPart uploadFile) {
 		String fileName = uploadFile.getFileName().orElseThrow(NotSupportedException::new);
 		String utfFileName = new String(fileName.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-		try (
-				InputStream content = uploadFile.getContent();
-				var out = new FileOutputStream(
-						uploaderRoot + File.separator + uploaderDirName + File.separator + utfFileName);
-			) {
-			IOUtils.copy(content, out);
+		try (InputStream content = uploadFile.getContent()) {
+			Files.copy(content, java.nio.file.Path
+					.of(uploaderRoot + File.separator + uploaderDirName + File.separator + utfFileName));
 			messagesModel.add(new MessageFileDTO(name, message, utfFileName));
 		} catch (Exception e) {
 			e.printStackTrace();
