@@ -9,7 +9,7 @@
 <title>メッセージの累積</title>
 </head>
 <body>
-	${loginUser.name}さん、こんにちは！<br>
+	${loginUserModel.name}さん、こんにちは！<br>
 	【通常版】<br>
 	<form action="list" method="POST">
 		メッセージ：<input type="text" name="message">
@@ -28,7 +28,7 @@
 	</form>
 	<hr>
 	<h1>メッセージ一覧</h1>
-	<c:forEach var="mes" items="${messages}">
+	<c:forEach var="mes" items="${messagesModel}">
 		<div>${mes.name}:${mes.message}
 		<c:if test = "${ mes.getClass().name == 'com.example.model.MessageFileDTO' && mes.fileName != null }"><br>[<a href="../${ uploaderDirName }/${ mes.fileName }">${ mes.fileName }</a>]</c:if></div>
 	</c:forEach>
