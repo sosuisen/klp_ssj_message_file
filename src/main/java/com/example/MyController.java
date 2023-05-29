@@ -80,7 +80,7 @@ public class MyController {
 	@GET
 	@Path("list")
 	public String getMessage() {
-		if(loginUser.getName() == null) {
+		if(loginUserModel.getName() == null) {
 			return "redirect:login";
 		}
 		models.put("uploaderDirName", uploaderDirName);
@@ -91,7 +91,7 @@ public class MyController {
 	@POST
 	@Path("list")
 	public String postMessage(@BeanParam MessageDTO mes) {
-		mes.setName(loginUser.getName());
+		mes.setName(loginUserModel.getName());
 		messagesModel.add(mes);
 		// リダイレクトは "redirect:リダイレクト先のパス"
 		return "redirect:list";
@@ -108,7 +108,7 @@ public class MyController {
 		try (InputStream content = uploadFile.getContent()) {
 			Files.copy(content, java.nio.file.Path
 					.of(uploaderRoot + File.separator + uploaderDirName + File.separator + utfFileName));
-			messagesModel.add(new MessageFileDTO(loginUser.getName(), message, utfFileName));
+			messagesModel.add(new MessageFileDTO(loginUserModel.getName(), message, utfFileName));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -125,7 +125,7 @@ public class MyController {
 	@GET
 	@Path("login")
 	public String getLogin() {
-		loginUser.setName(null);
+		loginUserModel.setName(null);
 		return "login.jsp";
 	}
 
@@ -134,8 +134,8 @@ public class MyController {
 	public String postLogin(@BeanParam UserDTO userDTO) {
 		var name = userDTO.getName();
 		var password = userDTO.getPassword();
-		if(password.equals(users.getPassword(name))){
-			loginUser.setName(name);
+		if(password.equals(usersModel.getPassword(name))){
+			loginUserModel.setName(name);
 			return "redirect:list";
 		}
 		errorBean.setMessage("ユーザ名またはパスワードが異なります");
