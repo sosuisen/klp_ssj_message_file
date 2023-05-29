@@ -48,6 +48,8 @@ public class MyController {
 	private final String uploaderRoot = "C:\\pleiades-ssj2023";
 	private final String uploaderDirName = "uploaded";
 
+	private final Models models;
+
 	private final MessagesModel messagesModel;
 
 	private final LoginUserModel loginUserModel;
@@ -57,16 +59,14 @@ public class MyController {
 	private final UsersModel usersModel;
 
 	@Inject
-	public MyController(MessagesModel messagesModel, LoginUserModel loginUserModel, ErrorBean errorBean,
-			UsersModel usersModel) {
+	public MyController(Models models, MessagesModel messagesModel, LoginUserModel loginUserModel,
+			ErrorBean errorBean, UsersModel usersModel) {
+		this.models = models;
 		this.messagesModel = messagesModel;
 		this.loginUserModel = loginUserModel;
 		this.errorBean = errorBean;
 		this.usersModel = usersModel;
 	}
-
-	@Inject
-	private Models models;
 
 	/**
 	 * @Path がないため、このメソッドはクラス全体が扱うURLのパスを扱います。
