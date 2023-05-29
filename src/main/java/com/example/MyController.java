@@ -47,6 +47,8 @@ public class MyController {
 	private final String uploaderRoot = "C:\\pleiades-ssj2023";
 	private final String uploaderDirName = "uploaded";
 
+	private final Models models;
+
 	private final MessagesModel messagesModel;
 
 	private final LoginUserModel loginUserModel;
@@ -55,14 +57,12 @@ public class MyController {
 
 	// @Injectはコンストラクタインジェクションを用いるのが定石です。
 	@Inject
-	public MyController(MessagesModel messagesModel, LoginUserModel loginUserModel, ErrorBean errorBean) {
+	public MyController(Models models, MessagesModel messagesModel, LoginUserModel loginUserModel, ErrorBean errorBean) {
+		this.models = models;
 		this.messagesModel = messagesModel;
 		this.loginUserModel = loginUserModel;
 		this.errorBean = errorBean;
 	}
-
-	@Inject
-	private Models models;
 
 	/**
 	 * @Path がないため、このメソッドはクラス全体が扱うURLのパスを扱います。
