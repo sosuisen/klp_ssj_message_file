@@ -9,7 +9,7 @@
 <title>ログインページ</title>
 </head>
 <body>
-	<form action="login" method="POST">
+	<form action="${mvc.basePath}/login" method="POST">
 		ユーザ名：<input type="text" name="name"><br> パスワード：<input
 			type="password" name="password">
 		<button>ログイン</button>
