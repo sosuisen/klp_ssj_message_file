@@ -35,13 +35,8 @@ public class MessagesModel extends ArrayList<MessageDTO> implements Serializable
 	private String saveFilePath = "c:\\pleiades-ssj2023\\data.json";
 
 	/**
-	 * コンストラクタが呼ばれた直後に実行する処理。
-	 * 
-	 * @PostConstruct アノテーションを付けて定義します。
-	 * MessagesModelクラスはアプリケーションスコープであるため、
-	 * 生成されるのはアプリが起動したときの1度きりですから、
-	 * コンストラクタの中に処理を書いても結果は同じです。
-	 * 他のスコープだと動作は変わります。
+	 * CDI Beanの初期化処理は、@PostConstruct アノテーションを付けた
+	 * メソッド内で行うのがベストです。
 	 * 
 	 * saveFilePathからJSON文字列を読み込んだ後、
 	 * JsonbでMessagesModelオブジェクトへ変換し、リストへ追加しています。
