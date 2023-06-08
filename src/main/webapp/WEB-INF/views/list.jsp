@@ -11,19 +11,19 @@
 <body>
 	${loginUserModel.name}さん、こんにちは！<br>
 	【通常版】<br>
-	<form action="list" method="POST">
+	<form action="${mvc.basePath}/list" method="POST">
 		メッセージ：<input type="text" name="message">
 		<button>送信</button>
 	</form>
 <hr>
 	【ファイルアップロード版】<br>
-	<form action="fileupload" method="POST" enctype="multipart/form-data">
+	<form action="${mvc.basePath}/fileupload" method="POST" enctype="multipart/form-data">
 		メッセージ：<input type="text" name="message">
 		<input type="file" name="uploadfile">
 		<button>送信</button>
 	</form>
 
-	<form action="clear" method="GET">
+	<form action="${mvc.basePath}/clear" method="GET">
 		<button>Clear</button>
 	</form>
 	<hr>
