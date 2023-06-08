@@ -133,8 +133,7 @@ public class MyController {
 	@Path("login")
 	public String postLogin(@BeanParam UserDTO userDTO) {
 		var name = userDTO.getName();
-		var password = userDTO.getPassword();
-		if(password.equals(usersModel.getPassword(name))){
+		if(usersModel.auth(name, userDTO.getPassword())){
 			loginUserModel.setName(name);
 			return "redirect:list";
 		}
