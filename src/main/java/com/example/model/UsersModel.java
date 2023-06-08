@@ -11,7 +11,7 @@ public class UsersModel {
 			"user2", "pass2",
 			"user3", "pass3");
 
-	public String getPassword(String name) {
-		return (String) users.get(name);
+	public boolean auth(String name, String password) {
+		return users.get(name).equals(password);
 	}
 }
