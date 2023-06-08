@@ -1,14 +1,8 @@
 package com.example;
 
-import java.io.File;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-
 import com.example.model.ErrorBean;
 import com.example.model.LoginUserModel;
 import com.example.model.MessageDTO;
-import com.example.model.MessageFileDTO;
 import com.example.model.MessagesModel;
 import com.example.model.UserDTO;
 import com.example.model.UsersModel;
@@ -18,14 +12,9 @@ import jakarta.inject.Inject;
 import jakarta.mvc.Controller;
 import jakarta.mvc.Models;
 import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.NotSupportedException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.core.EntityPart;
-import jakarta.ws.rs.core.MediaType;
 import lombok.NoArgsConstructor;
 
 /**
@@ -94,24 +83,6 @@ public class MyController {
 		mes.setName(loginUserModel.getName());
 		messagesModel.add(mes);
 		// リダイレクトは "redirect:リダイレクト先のパス"
-		return "redirect:list";
-	}
-
-	@POST
-	@Path("fileupload")
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public String postFileUpload(
-			@FormParam("message") String message,
-			@FormParam("uploadfile") EntityPart uploadFile) {
-		String fileName = uploadFile.getFileName().orElseThrow(NotSupportedException::new);
-		String utfFileName = new String(fileName.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-		try (InputStream content = uploadFile.getContent()) {
-			Files.copy(content, java.nio.file.Path
-					.of(uploaderRoot + File.separator + uploaderDirName + File.separator + utfFileName));
-			messagesModel.add(new MessageFileDTO(loginUserModel.getName(), message, utfFileName));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		return "redirect:list";
 	}
 
