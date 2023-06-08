@@ -12,6 +12,14 @@ import jakarta.json.bind.JsonbBuilder;
 
 @ApplicationScoped
 public class UsersModel {
+	/**
+	 * auth.jsonの中身は
+	 {
+  		"user1":"pass1",
+  		"user2":"pass2",
+  		"user3":"pass3"
+	 }
+	 */
 	private String saveFilePath = "c:\\pleiades-ssj2023\\auth.json";
 
 	private HashMap<String, String> users = new HashMap<>();
